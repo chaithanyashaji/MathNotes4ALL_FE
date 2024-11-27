@@ -58,6 +58,29 @@ export default function Home() {
     }, [reset]);
 
     useEffect(() => {
+        const resizeCanvas = () => {
+            const canvas = canvasRef.current;
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight - canvas.offsetTop;
+                    ctx.lineCap = 'round';
+                    ctx.lineWidth = 3;
+                }
+            }
+        };
+    
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Initial call to set the correct size
+    
+        return () => {
+            window.removeEventListener('resize', resizeCanvas);
+        };
+    }, []);
+    
+
+    useEffect(() => {
         const canvas = canvasRef.current;
 
         if (canvas) {
@@ -90,7 +113,7 @@ export default function Home() {
         const latex = `\\(\\LARGE{${expression} = ${answer}}\\)`;
         setLatexExpression([...latexExpression, latex])
     };
-    
+
     const stopDrawing = () => {
         if (isDrawing) {
             saveHistory(); // Save canvas state after completing a drawing action
@@ -195,19 +218,24 @@ export default function Home() {
         }
     };
 
-    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+
         const canvas = canvasRef.current;
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
+                const offsetX = 'touches' in e ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX;
+                const offsetY = 'touches' in e ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY;
                 ctx.beginPath();
-                ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+                ctx.moveTo(offsetX, offsetY);
                 setIsDrawing(true);
             }
         }
     };
+    
 
-    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
         if (!isDrawing) {
             return;
         }
@@ -215,13 +243,16 @@ export default function Home() {
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
+                const offsetX = 'touches' in e ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX;
+                const offsetY = 'touches' in e ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY;
                 ctx.strokeStyle = isEraser ? 'black' : color; // Eraser uses the canvas background color
                 ctx.lineWidth = isEraser ? eraserSize : 3; // Apply eraser size
-                ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+                ctx.lineTo(offsetX, offsetY);
                 ctx.stroke();
             }
         }
     };
+    
 
    
 
@@ -330,6 +361,10 @@ export default function Home() {
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseOut={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                
             />
             {latexExpression.map((latex, index) => (
                 <Draggable key={index}>
