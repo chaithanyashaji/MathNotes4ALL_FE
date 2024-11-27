@@ -87,11 +87,10 @@ export default function Home() {
     }, []);
 
     const renderLatexToCanvas = (expression: string, answer: string) => {
-        const formattedExpression = expression.replace(/ /g, '&nbsp;');
-        const formattedAnswer = answer.replace(/ /g, '&nbsp;');
-        const latex = `\\(\\LARGE{${formattedExpression} = ${formattedAnswer}}\\)`;
-        setLatexExpression([...latexExpression, latex]);
+        const latex = `\\(\\LARGE{${expression} = ${answer}}\\)`;
+        setLatexExpression([...latexExpression, latex])
     };
+    
     const stopDrawing = () => {
         if (isDrawing) {
             saveHistory(); // Save canvas state after completing a drawing action
