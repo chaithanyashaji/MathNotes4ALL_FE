@@ -1,50 +1,35 @@
-# React + TypeScript + Vite
+# MathNotes4All
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**MathNotes4All** is a responsive web tool designed for drawing mathematical expressions and geometric figures using mouse or touch input. Inspired by Apple’s MathNotes, the application allows users to create, edit, and save their mathematical drawings and expressions. It includes dynamic LaTeX rendering, undo/redo functionality, and the ability to save and upload the drawings. The tool is powered by a Python backend with the Gemini API for computation.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Responsive Drawing Tool:** Draw math expressions and geometric figures using mouse or touch input.
+- **Dynamic LaTeX Rendering:** Automatically converts handwritten math into LaTeX expressions for real-time display.
+- **Undo/Redo Functionality:** Easily correct mistakes with the undo/redo feature.
+- **Save & Upload:** Users can save their drawings or upload them for further use.
+- **Backend Powered by Gemini API:** The app uses a Python backend integrated with the Gemini API for handling complex mathematical computations.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+---
 
-- Configure the top-level `parserOptions` property like this:
+## Live Demo
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Try out the tool live here: [MathNotes4All](https://mathnotes4all.onrender.com/)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Tech Stack
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+**Frontend:**
+- React.js
+- TypeScript
+
+**Backend:**
+- Python
+- Gemini API for mathematical computation
+
+---
+
+
