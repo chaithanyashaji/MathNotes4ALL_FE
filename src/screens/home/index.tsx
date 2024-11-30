@@ -30,6 +30,7 @@ export default function Home() {
     const [eraserSize, setEraserSize] = useState(10); 
     const [history, setHistory] = useState<string[]>([]);
     const [redoStack, setRedoStack] = useState<string[]>([]);
+    
     // Default eraser size
 
     useEffect(() => {
@@ -110,9 +111,15 @@ export default function Home() {
     }, []);
 
     const renderLatexToCanvas = (expression: string, answer: string) => {
-        const latex = `\\(\\LARGE{${expression} = ${answer}}\\)`;
-        setLatexExpression([...latexExpression, latex])
+        // Remove all spaces from the expression
+        const formattedExpression = expression.replace(/\s+/g, "\\ ");
+        const latex = `\\(\\LARGE{${formattedExpression} = ${answer}}\\)`;
+        
+        // Update state safely
+        setLatexExpression((prevLatexExpression) => [...prevLatexExpression, latex]);
     };
+    
+
 
     const stopDrawing = () => {
         if (isDrawing) {
@@ -215,6 +222,8 @@ export default function Home() {
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
+            setHistory([]);
+            setRedoStack([]);
         }
     };
 
@@ -292,90 +301,123 @@ export default function Home() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <div className="flex flex-col h-screen bg-black z-2">
+            {/* Top Bar */}
             {showTools && (
-                <div className="flex items-center justify-between w-full gap-4 p-2 bg-gray-800 rounded-md shadow-md">
-                <Button
-                    onClick={() => setReset(true)}
-                    className="px-4 py-2 text-sm font-bold text-black bg-yellow-500 border border-white rounded hover:bg-yellow-600"
-                >
-                    Reset
-                </Button>
-                <div className="flex items-center gap-4 flex-wrap">
-                    {SWATCHES.map((swatch) => (
-                        <div
-                            key={swatch}
-                            className="w-6 h-6 rounded-full border-2 border-white cursor-pointer"
-                            style={{ backgroundColor: swatch }}
-                            onClick={() => {
-                                setIsEraser(false);
-                                setColor(swatch);
-                            }}
-                        />
-                    ))}
-                    <div className="flex items-center gap-2">
-                        <FaEraser
-                            size={24}
-                            className={`cursor-pointer ${
-                                isEraser ? 'text-red-500' : 'text-white'
-                            }`}
-                            onClick={() => setIsEraser(!isEraser)}
-                        />
-                        {isEraser && (
-                            <input
-                                type="range"
-                                min="5"
-                                max="50"
-                                value={eraserSize}
-                                onChange={(e) => setEraserSize(Number(e.target.value))}
-                                className="w-24"
-                            />
-                        )}
-                    </div>
-                    <FaUndo size={18} className="cursor-pointer text-white" onClick={undo} />
-                    <FaRedo size={18} className="cursor-pointer text-white" onClick={redo} />
-                    <FaSave size={18} className="cursor-pointer text-white" onClick={saveCanvas} />
-                    <label className="cursor-pointer text-white">
-                        <FaUpload size={18} />
-                        <input type="file" onChange={loadCanvas} className="hidden" />
-                    </label>
+                <div className="fixed top-0 left-0 w-full flex justify-between p-2 shadow-md  z-50">
+                    {/* Top Left Button */}
+                    <Button
+                        onClick={() => setReset(true)}
+                        className="px-4 py-2 text-sm font-bold text-black bg-yellow-500 border border-white rounded hover:bg-yellow-600"
+                    >
+                        Reset
+                    </Button>
+    
+                    {/* Top Right Button */}
+                    <Button
+                        onClick={runRoute}
+                        className="px-4 py-2 text-sm font-bold text-black bg-yellow-500 border border-white rounded hover:bg-yellow-600"
+                    >
+                        Calculate
+                    </Button>
                 </div>
-                <Button
-                    onClick={runRoute}
-                    className="px-4 py-2 text-sm font-bold text-black bg-yellow-500 border border-white rounded hover:bg-yellow-600"
-                >
-                    Calculate
-                </Button>
-            </div>
-            
             )}
-            <FiTool
-                size={24}
-                className="absolute bottom-4 right-4 cursor-pointer text-white"
-                onClick={() => setShowTools(!showTools)}
-            />
-            <canvas
-                ref={canvasRef}
-                className="w-full h-full mt-4 bg-black"
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseOut={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-                
-            />
-            {latexExpression.map((latex, index) => (
-                <Draggable key={index}>
-                    <div
-                        className="absolute p-2 text-sm text-white shadow-md whitespace-pre"
-                        dangerouslySetInnerHTML={{ __html: latex }}
+    
+            {/* Main Content */}
+            <div className="relative flex flex-1 mt-12">
+                {/* Left Tools */}
+                {showTools && (
+                    <div className="fixed left-2 top-16 flex flex-col items-center gap-4 p-2  rounded-md shadow-md z-50">
+                        {SWATCHES.map((swatch) => (
+                            <div
+                                key={swatch}
+                                className="w-6 h-6 rounded-full border-2 border-white cursor-pointer"
+                                style={{ backgroundColor: swatch }}
+                                onClick={() => {
+                                    setIsEraser(false);
+                                    setColor(swatch);
+                                }}
+                            />
+                        ))}
+                        <div className="flex flex-col items-center gap-2">
+                            <FaEraser
+                                size={24}
+                                className={`cursor-pointer ${
+                                    isEraser ? 'text-red-500' : 'text-white'
+                                }`}
+                                onClick={() => setIsEraser(!isEraser)}
+                            />
+                            {isEraser && (
+                                <input
+                                    type="range"
+                                    min="5"
+                                    max="50"
+                                    value={eraserSize}
+                                    onChange={(e) => setEraserSize(Number(e.target.value))}
+                                    className="w-24"
+                                />
+                            )}
+                        </div>
+                        <FaUndo size={18} className="cursor-pointer text-white" onClick={undo} />
+                        <FaRedo size={18} className="cursor-pointer text-white" onClick={redo} />
+                        <FaSave size={18} className="cursor-pointer text-white" onClick={saveCanvas} />
+                        <label className="cursor-pointer text-white">
+                            <FaUpload size={18} />
+                            <input type="file" onChange={loadCanvas} className="hidden" />
+                        </label>
+                    </div>
+                )}
+    
+                {/* Canvas */}
+                <div className="relative flex-1">
+                    <FiTool
+                        size={24}
+                        className="fixed bottom-4 right-4 cursor-pointer text-white"
+                        onClick={() => setShowTools(!showTools)}
                     />
-                </Draggable>
-            ))}
+                    <canvas
+                        ref={canvasRef}
+                        className="w-full h-full mt-4 bg-black"
+                        onMouseDown={startDrawing}
+                        onMouseMove={draw}
+                        onMouseUp={stopDrawing}
+                        onMouseOut={stopDrawing}
+                        onTouchStart={startDrawing}
+                        onTouchMove={draw}
+                        onTouchEnd={stopDrawing}
+                    />
+                    
+                    <div
+    style={{
+        position: 'absolute',
+        top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)', 
+        zIndex: 100, // Ensure it's above other elements
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '8px',
+    }}
+>
+    {latexExpression.map((latex, index) => (
+        <Draggable key={index}>
+        <div
+            className="absolute p-2 text-sm text-white shadow-md whitespace-pre"
+            dangerouslySetInnerHTML={{ __html: latex }}
+        />
+    </Draggable>
+      ))}
+</div>
+
+                </div>
+                
+            </div>
         </div>
     );
+    
+    
+    
 
     
-}
+} 
