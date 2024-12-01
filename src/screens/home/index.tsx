@@ -5,7 +5,7 @@ import Draggable from 'react-draggable';
 import { SWATCHES } from '@/constants';
 import { FaEraser, FaUndo, FaRedo, FaSave, FaUpload } from 'react-icons/fa';
 import { FiTool } from 'react-icons/fi';
-import ReactTooltip from 'react-tooltip';
+
 
 
 interface GeneratedResult {
@@ -36,7 +36,7 @@ export default function Home() {
   { id: string; image: HTMLImageElement; position: { x: number; y: number } }[]
 >([]);
 
-    const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+    
     
     // Default eraser size
 
